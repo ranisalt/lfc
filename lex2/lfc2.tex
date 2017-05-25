@@ -1,0 +1,452 @@
+\documentclass[answers]{exam}
+% rubber: module xelatex
+% rubber: shell_escape
+\usepackage{amsmath,amssymb}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage[pdf,tmpdir]{graphviz}
+\usepackage{listings}
+\usepackage{polyglossia}
+
+\lstset{
+    basicstyle=\itshape,
+    literate={->}{$\rightarrow$}{2}
+             {|}{$\mid$}{1}
+}
+\renewcommand{\solutiontitle}{}
+
+\begin{document}
+\setdefaultlanguage{brazilian}
+\title{Linguagens Formais e Compiladores -- Lista 2}
+\author{Ranieri S. Althoff -- 13100773}
+
+\maketitle
+
+\begin{questions}
+
+\question Construa um autômato finito M tal que:
+
+\begin{parts}
+
+\part $T(M) = \{x \mid x \in a^n(b, c)^* \land n \geq 0 \land |x| \text{ seja
+    ímpar} \land x \text{ não possui } bb \land x \text{ não possui } cc\}$
+
+\begin{solution}
+    \digraph[scale=0.5]{fsm1a}{
+        rankdir=LR;
+
+        node [shape = point]; qi;
+        node [shape = doublecircle]; q1; q2; q3;
+
+        node [shape = circle];
+        qi -> q0;
+        q0 -> q1 [label="a"];
+        q1 -> q0 [label="a"];
+        q0 -> q2 [label="b"];
+        q0 -> q3 [label="c"];
+        q1 -> q4 [label="b"];
+        q3 -> q4 [label="b"];
+        q4 -> q3 [label="c"];
+        q1 -> q5 [label="c"];
+        q2 -> q5 [label="c"];
+        q5 -> q2 [label="b"];
+    }
+\end{solution}
+
+\part $T(M) = \{x \mid x \in (0, 1)^+ \land x \text{ seja um binário divisível
+    por } 6\}$
+
+\begin{solution}
+    \digraph[scale=0.5]{fsm1b}{
+        rankdir=LR;
+
+        node [shape = point]; qi;
+        node [shape = doublecircle]; q0;
+
+        node [shape = circle];
+        qi -> q0;
+        q0 -> q0 [label="0"];
+        q0 -> q1 [label="1"];
+        q1 -> q2 [label="0"];
+        q1 -> q3 [label="1"];
+        q2 -> q4 [label="0"];
+        q2 -> q5 [label="1"];
+        q3 -> q0 [label="0"];
+        q3 -> q1 [label="1"];
+        q4 -> q2 [label="0"];
+        q4 -> q3 [label="1"];
+        q5 -> q4 [label="0"];
+        q5 -> q5 [label="1"];
+    }
+\end{solution}
+
+\part $T(M) = \{x \mid x \in (1, 2, 3)^* \land \text{o somatório dos
+    elementos de } x \text{ seja múltiplo de } 4\}$
+
+\begin{solution}
+    \digraph[scale=0.5]{fsm1c}{
+        rankdir=LR;
+
+        node [shape = point]; qi;
+        node [shape = doublecircle]; q0;
+
+        node [shape = circle];
+        qi -> q0;
+        q0 -> q1 [label="1"];
+        q0 -> q2 [label="2"];
+        q0 -> q3 [label="3"];
+        q1 -> q2 [label="1"];
+        q1 -> q3 [label="2"];
+        q1 -> q0 [label="3"];
+        q2 -> q3 [label="1"];
+        q2 -> q0 [label="2"];
+        q2 -> q1 [label="3"];
+        q3 -> q0 [label="1"];
+        q3 -> q1 [label="2"];
+        q3 -> q2 [label="3"];
+    }
+\end{solution}
+
+\part $T(M) = \{a^nyc^kxa^m \mid n,m,k \geq 1 \land x,y \in (a,b)^* \land \#a’s
+    \text{ em } y \geq n \land \#a’s \text{ em } x \geq m\}$
+
+\begin{solution}
+    \digraph[scale=0.5]{fsm1d}{
+        rankdir=LR;
+
+        node [shape = point]; qi;
+        node [shape = doublecircle]; q6;
+
+        node [shape = circle];
+        qi -> q0;
+        q0 -> q1 [label="a"];
+        q1 -> q2 [label="a"];
+        q1 -> q1 [label="b"];
+        q2 -> q2 [label="a,b"];
+        q2 -> q3 [label="c"];
+        q3 -> q4 [label="a"];
+        q3 -> q5 [label="b"];
+        q3 -> q3 [label="c"];
+        q4 -> q6 [label="a"];
+        q4 -> q4 [label="b"];
+        q5 -> q4 [label="a"];
+        q5 -> q5 [label="b"];
+        q6 -> q6 [label="a"];
+        q6 -> q4 [label="b"];
+    }
+\end{solution}
+
+\part $T(M) = \{x \mid x \in (0, 1)^* \land x \text{ seja um número binário
+    cujo decimal correspondente seja par e não divisível por } 3\}$
+
+\begin{solution}
+    \digraph[scale=0.5]{fsm1e}{
+        rankdir=LR;
+
+        node [shape = point]; qi;
+        node [shape = doublecircle]; q1; q3; q4;
+
+        node [shape = circle];
+        qi -> q0;
+        q0 -> q1 [label="0"];
+        q0 -> q2 [label="1"];
+        q1 -> q1 [label="0"];
+        q1 -> q2 [label="1"];
+        q2 -> q3 [label="0"];
+        q2 -> q0 [label="1"];
+        q3 -> q4 [label="0"];
+        q3 -> q5 [label="1"];
+        q4 -> q3 [label="0"];
+        q4 -> q0 [label="1"];
+        q5 -> q4 [label="0"];
+        q5 -> q5 [label="1"];
+    }
+\end{solution}
+
+\part $T(M) = \{(a, b)^*(c, d)^* \mid \#a’s + \#c’s \text{ é par} \land \#b’s +
+    \#d’s \text{ é ímpar}\}$
+
+\begin{solution}
+    \digraph[scale=0.5]{fsm1f}{
+        rankdir=LR;
+
+        node [shape = point]; qi;
+        node [shape = doublecircle]; q2; q5;
+
+        node[shape = circle];
+        qi -> q0;
+        q0 -> q1 [label="a"];
+        q0 -> q2 [label="b"];
+        q1 -> q0 [label="a"];
+        q1 -> q3 [label="b"];
+        q2 -> q3 [label="a"];
+        q2 -> q0 [label="b"];
+        q3 -> q2 [label="a"];
+        q3 -> q1 [label="b"];
+
+        q0 -> q4 [label="c"];
+        q0 -> q5 [label="d"];
+        q1 -> q6 [label="c"];
+        q1 -> q7 [label="d"];
+        q2 -> q7 [label="c"];
+        q2 -> q6 [label="d"];
+        q3 -> q4 [label="c"];
+        q3 -> q4 [label="d"];
+
+        q4 -> q6 [label="c"];
+        q4 -> q7 [label="d"];
+        q5 -> q7 [label="c"];
+        q5 -> q6 [label="d"];
+        q6 -> q4 [label="c"];
+        q6 -> q5 [label="d"];
+        q7 -> q5 [label="c"];
+        q7 -> q4 [label="d"];
+    }
+\end{solution}
+
+\end{parts}
+
+\question Construa a G.R. correspondente a 2 AFs obtidos no item anterior.
+
+\begin{parts}
+
+\part Para o autômato 1a:
+\begin{solution}
+    \begin{lstlisting}
+        S -> aA | bB | cC | a | b | c
+        A -> aS | bD | cE
+        B -> cE
+        C -> bD
+        D -> cC | c
+        E -> bB | b
+    \end{lstlisting}
+\end{solution}
+
+\part Para o autômato 1b:
+\begin{solution}
+    \begin{lstlisting}[mathescape=true]
+        S' -> 0S | 1A | 0 | $\varepsilon$
+        S -> 0S | 1A | 0
+        A -> 0B | 1C
+        B -> 0D | 1E
+        C -> 0A | 1S | 0
+        D -> 0B | 1C
+        E -> 0D | 1E
+    \end{lstlisting}
+\end{solution}
+
+\end{parts}
+
+\question Seja $T(M) = \{x \mid x \in (a, b)^* \land \text{o $n$-ésimo símbolo
+da direita para a esquerda de x seja } b\}$. Pede-se: Qual o número de estados
+(em função de $n$) de $M$ caso ele seja não determinístico? E se ele for
+determinístico? Exemplifique.
+
+\begin{solution}
+    \begin{itemize}
+        \item Um AF não-determinístico para este problema requer $n + 1$
+            estados.
+
+            Para $n = 2$:
+
+            \digraph[scale=0.5]{fsm3a2}{
+                rankdir=LR;
+
+                node [shape = point]; qi;
+                node [shape = doublecircle]; q2;
+
+                node[shape = circle];
+                qi -> q0;
+                q0 -> q0 [label="a,b"];
+                q0 -> q1 [label="b"];
+                q1 -> q2 [label="a,b"];
+            }
+
+            Para $n = 3$.
+
+            \digraph[scale=0.5]{fsm3a3}{
+                rankdir=LR;
+
+                node [shape = point]; qi;
+                node [shape = doublecircle]; q3;
+
+                node[shape = circle];
+                qi -> q0;
+                q0 -> q0 [label="a,b"];
+                q0 -> q1 [label="b"];
+                q1 -> q2 [label="a,b"];
+                q2 -> q3 [label="a,b"];
+            }
+
+            E assim sucessivamente, adicionando um estado (como o novo $q2$) a
+            cada incremento de $n$, com as transições apropriadas.
+
+        \item Um AF determinístico para este problema requer $2^n$ estados. Os
+            exemplos abaixo foram obtivos determinizando e minimizando os
+            exemplos acima.
+
+            Para $n = 2$:
+
+            \digraph[scale=0.5]{fsm3b2}{
+                rankdir=LR;
+
+                node [shape = point]; qi;
+                node [shape = doublecircle]; q2; q3;
+
+                node[shape = circle];
+                qi -> q0;
+                q0 -> q0 [label="a"];
+                q0 -> q1 [label="b"];
+                q1 -> q2 [label="a"];
+                q1 -> q3 [label="b"];
+                q2 -> q0 [label="a"];
+                q2 -> q1 [label="b"];
+                q3 -> q2 [label="a"];
+                q3 -> q3 [label="b"];
+            }
+
+            Para $n = 3$:
+
+            \digraph[scale=0.5]{fsm3b3}{
+                rankdir=LR;
+
+                node [shape = point]; qi;
+                node [shape = doublecircle]; q4; q5; q6; q7;
+
+                node[shape = circle];
+                qi -> q0;
+                q0 -> q0 [label="a"];
+                q0 -> q1 [label="b"];
+                q1 -> q2 [label="a"];
+                q1 -> q3 [label="b"];
+                q2 -> q4 [label="a"];
+                q2 -> q5 [label="b"];
+                q3 -> q6 [label="a"];
+                q3 -> q7 [label="b"];
+                q4 -> q0 [label="a"];
+                q4 -> q1 [label="b"];
+                q5 -> q2 [label="a"];
+                q5 -> q3 [label="b"];
+                q6 -> q4 [label="a"];
+                q6 -> q5 [label="b"];
+                q7 -> q6 [label="a"];
+                q7 -> q7 [label="b"];
+            }
+
+    \end{itemize}
+\end{solution}
+
+\question Construa um AFD Mínimo $M \mid T(M) = L(G)$ e determine $T(M)$, onde
+$G$ é definida por:
+
+\begin{parts}
+
+\part
+\begin{lstlisting}[mathescape=true]
+    S -> aB | aD | bA | bC | a | b | $\varepsilon$
+    A -> aB | bA | a
+    B -> bB | aA | b
+    C -> aD | bC | b
+    D -> aC | bD | a
+\end{lstlisting}
+
+\begin{solution}
+    Tabela de transições:
+
+    \begin{tabular}{ r || c | c }
+        $\delta$ & $a$ & $b$ \\ \hline\hline
+        $\rightarrow\star$ q0 & q2, q4, q5 & q1, q3, q5 \\
+        q1 & q2, q5 & q1 \\
+        q2 & q1 & q2, q5 \\
+        q3 & q4 & q3, q5 \\
+        q4 & q3, q5 & q4 \\
+        $\star$ q5 & --- & --- \\
+    \end{tabular}\newline
+
+    Transformando em AF determinístico:
+
+    \begin{tabular}{ r || c | c }
+        $\delta$ & $a$ & $b$ \\ \hline\hline
+        $\rightarrow\star$ [q0] & [q2, q4, q5] & [q1, q3, q5] \\
+        $\star$ [q2, q4, q5] & [q1, q3, q5] & [q2, q4, q5] \\
+        $\star$ [q1, q3, q5] & [q2, q4, q5] & [q1, q3, q5] \\
+    \end{tabular}\newline
+
+    Classes de equivalência:
+
+    \begin{itemize}
+        \item $F = \{$[q0], [q2, q4, q5], [q1, q3, q5]$\}$
+        \item $K - F = \varnothing$
+    \end{itemize}
+
+    Há somente 1 classe de equivalência, e não há como formar uma nova. O
+    autômato finito determinístico mínimo resultante é:
+
+    \digraph[scale=0.5]{fsm4a}{
+        rankdir=LR;
+
+        node [shape = point]; qi;
+        node [shape = doublecircle]; q0;
+
+        node[shape = circle];
+        qi -> q0;
+        q0 -> q0 [label="a,b"];
+    }
+\end{solution}
+
+\part
+\begin{lstlisting}[mathescape=true]
+    S' -> aA | cC | bA | bC | $\varepsilon$
+    S -> aA | cC | bA | bC
+    A -> bS | cD | b | c
+    C -> bS | aE | b | a
+    D -> aA | bA | bC
+    E -> cC | bC | bA
+\end{lstlisting}
+
+\begin{solution}
+    Nota-se que as produções de $S$ e $S'$ são as mesmas, sendo que a segunda
+    foi criada para evitar derivação com $\varepsilon$, e serão consideradas
+    como um só terminal.
+
+    Tabela de transições:
+
+    \begin{tabular}{ r || c | c | c }
+        $\delta$ & $a$ & $b$ & $c$ \\ \hline\hline
+        $\rightarrow\star$ q0 & q1 & q1, q2 & q2 \\
+        q1 & --- & q0, q5 & q3, q5 \\
+        q2 & q4, q5 & q0, q5 & --- \\
+        q3 & q1 & q1, q2 & --- \\
+        q4 & --- & q1, q2 & q2 \\
+        $\star$ q5 & --- & --- & --- \\
+    \end{tabular}\newline
+
+    Transformando em AF determinístico, renomeando estados:
+
+    \begin{tabular}{ r || c | c | c || l }
+        $\delta$ & $a$ & $b$ & $c$ & nome \\ \hline\hline
+        $\rightarrow\star$ [q0] & [q1] & [q1, q2] & [q2] & q0 \\
+        \null [q1] & --- & [q0, q5] & [q3, q5] & q1 \\
+        \null [q1, q2] & [q4, q5] & [q0, q5] & [q3, q5] & q2 \\
+        \null [q2] & [q4, q5] & [q0, q5] & --- & q3 \\
+        $\star$ [q0, q5] & [q1] & [q1, q2] & [q2] & q4 \\
+        $\star$ [q3, q5] & [q1] & [q1, q2] & --- & q5 \\
+        $\star$ [q4, q5] & --- & [q1, q2] & [q2] & q6 \\
+    \end{tabular}\newline
+
+    Classes de equivalência:
+
+    \begin{itemize}
+        \item $F = \{$q0, q4, q5, q6$\}$
+        \item $K - F = \{$q1, q2, q3$\}$
+    \end{itemize}
+
+
+    $\{$q0, q4, q5, q6$\}_0\{$q1, q2, q3$\}_1$ \\
+    $\{$q0, q4, q5, q6$\}_0\{$q1, q2, q3$\}_1$
+\end{solution}
+
+\end{parts}
+
+\end{questions}
+
+\end{document}
