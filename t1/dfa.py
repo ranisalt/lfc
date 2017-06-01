@@ -1,32 +1,39 @@
 import json
-from itertools import chain
-from typing import Dict, NamedTuple, Optional, Set, Tuple
+from itertools import chain, product
+from typing import Dict, FrozenSet, NamedTuple, Optional, Tuple
 
 Symbol = str
 State = str
 
 
 class DFA(NamedTuple):
-    alphabet: Set[Symbol]
-    states: Set[State]
+    alphabet: FrozenSet[Symbol]
+    states: FrozenSet[State]
     initial_state: State
     transitions: Dict[Tuple[Symbol, State], State]
-    final_states: Set[State]
+    final_states: FrozenSet[State]
+
+    def copy(self):
+        return DFA(
+            alphabet=self.alphabet.copy(),
+            states=self.states.copy(),
+            initial_state=self.initial_state.copy(),
+            transitions=self.transitions.copy(),
+            final_states=self.final_states.copy(),
+            )
 
     def remove_unreachable(self):
         reachable = {self.initial_state, }
-        new_states = {self.initial_state, }
+        states = {self.initial_state, }
 
-        while len(new_states) > 0:
-            temp = set()
-            for q in new_states:
-                for c in self.alphabet:
-                    state = self.step(q, c)
-                    if state:
-                        temp.add(state)
+        def reachable_from(states):
+            for key in product(states, self.alphabet):
+                if key in self.transitions:
+                    yield self.transitions[key]
 
-            new_states = temp - reachable
-            reachable = reachable | new_states
+        while states:
+            states = {state for state in reachable_from(states)} - reachable
+            reachable |= states
 
         return self.create(
             initial_state=self.initial_state,
@@ -35,6 +42,45 @@ class DFA(NamedTuple):
                 if k[0] in reachable and v in reachable
                 },
             final_states={q for q in self.final_states if q in reachable}
+            )
+
+    def merge_nondistinguishable(self):
+        p = {self.final_states, self.states - self.final_states}
+        w = {self.final_states, }
+
+        print(p)
+
+        while len(w) > 0:
+            a = w.pop()
+
+            for c in self.alphabet:
+                x = frozenset(k[0] for k, v in self.transitions.items()
+                              if k[1] == c and v in a)
+
+                for y in p.copy():
+                    intersection, difference = x & y, y - x
+                    if not intersection or not difference:
+                        continue
+
+                    p.remove(y)
+                    p.add(intersection)
+                    p.add(difference)
+
+                    if y in w:
+                        w.remove(y)
+                        w.add(intersection)
+                        w.add(difference)
+                    else:
+                        w.add(intersection if len(intersection) <= len(
+                            difference) else difference)
+
+            print(p)
+
+        return self.create(
+            initial_state=next(q for q in p if self.initial_state in q),
+            transitions={},
+            final_states={q for q in p
+                          if any(qf in q for qf in self.final_states)}
             )
 
     def accept(self, word) -> bool:
@@ -62,7 +108,13 @@ class DFA(NamedTuple):
         s = chain.from_iterable((k[0], v) for k, v in transitions.items())
         states = {initial_state, } | set(final_states) | set(s)
 
-        return cls(alphabet, states, initial_state, transitions, final_states)
+        return cls(
+            frozenset(alphabet),
+            frozenset(states),
+            initial_state,
+            transitions,
+            frozenset(final_states),
+            )
 
 
 def load_dfa(fp) -> DFA:
